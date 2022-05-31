@@ -65,7 +65,8 @@ public class imageController {
 
     @PostMapping
     public Map<String, String> create(@RequestBody Map<String, String> image) {
-        image.put("id", String.valueOf(counter++));
+        image.put("id", String.valueOf(counter));
+        image.put("url", "/images/showme/"+ String.valueOf(counter++));
         Collections.reverse(images);
         images.add(image);
         Collections.reverse(images);
