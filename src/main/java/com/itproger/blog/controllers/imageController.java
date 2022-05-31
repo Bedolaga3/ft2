@@ -3,6 +3,7 @@ package com.itproger.blog.controllers;
 
 import com.itproger.blog.exceptions.NotFoundException;
 import com.itproger.blog.generator.imageGenerator;
+import com.itproger.blog.FileChecker;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -23,12 +24,16 @@ import java.util.*;
 public class imageController {
     private String pathToResultFolder = "src/main/resources/results";
     //"C:/Users/ASUS/Desktop/springboot/ft2/src/main/resources/results"; //Введите путь до папки result
+    File resultsDir = FileChecker.DirCreator(pathToResultFolder);
+    //File resultsDir = new File(pathToResultFolder);
 
-    private int counter = new File(pathToResultFolder).listFiles().length;
+
+    private int counter = FileChecker.CheckLargestId(resultsDir)+1;
+    //private int counter = resultsDir.listFiles().length;
 
     private List<Map<String, String>> images = new ArrayList<Map<String, String>>() {{
 
-        for(int i = counter-1; i>-1; i--){
+        for(int i = counter-1; i>0; i--){
             String StringI = Integer.toString(i);
             add(new HashMap<String, String>() {{ put("id", StringI); put("url", "/images/showme/" + StringI);}});
         }
@@ -69,10 +74,10 @@ public class imageController {
     @PostMapping
     public Map<String, String> create(@RequestBody Map<String, String> image) throws IOException {
         image.put("id", String.valueOf(counter));
-        image.put("url", "/images/showme/"+ String.valueOf(counter++));
+        image.put("url", "/images/showme/"+ String.valueOf(counter));
 
         /////////////////////////
-        counter = imageGenerator.Generate();
+        counter = imageGenerator.Generate(counter++);
         /////////////////////////
 
         Collections.reverse(images);

@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.Buffer;
 import java.util.ArrayList;
 
 public class imageGenerator {
@@ -108,6 +109,15 @@ public class imageGenerator {
 
     }
 
+    public static File GenerateGlasses(){
+        File folder_name = new File ("src/items/glasses");
+        ArrayList<Object> data = new ArrayList<Object>();
+        data = percent_checker(folder_name);
+        //System.out.println("Очки: " + data.get(0) + '%');
+        return (File) data.get(1);
+
+    }
+
     public static File GenerateHair(){
         File folder_name = new File ("src/items/hair");
         ArrayList<Object> data = new ArrayList<Object>();
@@ -126,10 +136,20 @@ public class imageGenerator {
 
     }
 
-    public static BufferedImage GenerateBackground(){
+    public static ArrayList<Object> GenerateMasks(){
+        File folder_name = new File ("src/items/masks");
+        ArrayList<Object> data = new ArrayList<Object>();
+        data = percent_checker(folder_name);
+        //System.out.println("Маска: " + data.get(0) + '%');
+        return data;
+
+    }
+
+
+    public static BufferedImage GenerateBackground() throws IOException {
         BufferedImage background = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = background.createGraphics();
-        int cases = 4;
+        int cases = 5;
         int choice_pattern = 0 + (int) (Math.random() * cases); //ds
         double rarity = 1.0/cases;
 
@@ -176,6 +196,14 @@ public class imageGenerator {
                 g2d.fillRect(2 * background.getWidth() / 3, 0, background.getWidth(), background.getHeight());
                 rarity *= (1.0/256.0);
             }
+            case 4 -> { //Заранее заготовленный фон
+                File folder_name = new File ("src/items/backgrounds");
+                ArrayList<Object> data = new ArrayList<Object>();
+                data = percent_checker(folder_name);
+                //System.out.println("Одежда: " + data.get(0) + '%');
+                File fileBackground = (File) data.get(1);
+                background = ImageIO.read(fileBackground);
+            }
         }
         rarity_background = rarity;
         return background;
@@ -185,7 +213,7 @@ public class imageGenerator {
 
 
 
-    public static int Generate() throws IOException {
+    public static int Generate(int img_id) throws IOException {
 
 
         InputStream inputStream = System.in;
@@ -197,7 +225,8 @@ public class imageGenerator {
         // System.out.println("Сколько изображений вы хотите сгенерировать?");
         //int amount = Integer.parseInt(bufferedReader.readLine());
         int amount = new File("src/main/resources/results").listFiles().length;
-        System.out.println("Файлов в папке:" + amount);
+        System.out.println("Файлов в папке:" + img_id);
+
         //Открытие изображения со скином
         File fileSkin = GenerateSkin();
         BufferedImage skin = ImageIO.read(fileSkin);
@@ -207,6 +236,14 @@ public class imageGenerator {
         //Открытие изображения с глазами
         File fileEyes = GenerateEyes();
         BufferedImage eyes = ImageIO.read(fileEyes);
+        //Открытие изображения с очками
+        File fileGlasses = GenerateGlasses();
+        BufferedImage glasses = ImageIO.read(fileGlasses);
+        //Открытие изображения с масками
+        //Открытие изображения с очками
+        ArrayList<Object> MaskData = GenerateMasks();
+        File fileMasks = (File) MaskData.get(1);
+        BufferedImage masks = ImageIO.read(fileMasks);
         //Открытие изображения с волосами
         File fileHair = GenerateHair();
         BufferedImage hair = ImageIO.read(fileHair);
@@ -223,11 +260,15 @@ public class imageGenerator {
         result.getGraphics().drawImage(GenerateBackground(), 0, 0, null);
         result.getGraphics().drawImage(skin, 0, 0, null);
         result.getGraphics().drawImage(clothes, 0, 0, null);
-        result.getGraphics().drawImage(hair,0, 0, null);
         result.getGraphics().drawImage(eyes, 0, 0, null);
+        if ((int) MaskData.get(0) != 1){
+            result.getGraphics().drawImage(glasses, 0, 0, null);
+            result.getGraphics().drawImage(hair,0, 0, null);
+        }
+        else result.getGraphics().drawImage(masks, 0, 0, null);
         result.getGraphics().drawImage(hat, 0, 0, null);
 
-        String outputPath = String.format("src/main/resources/results/%d.png", amount++);
+        String outputPath = String.format("src/main/resources/results/%d.png", img_id++);
         File output = new File(outputPath);
         ImageIO.write(result, "png", output);
         //Записываем текст в файл
@@ -245,7 +286,7 @@ public class imageGenerator {
         System.out.println(filePath); // C/users/ASUS/Desktop/springboot/ft2
 
          */
-        return amount;
+        return img_id;
     }
 
 }
