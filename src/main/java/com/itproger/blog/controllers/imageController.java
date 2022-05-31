@@ -21,7 +21,8 @@ import java.util.*;
 @RestController
 @RequestMapping("images")
 public class imageController {
-    private String pathToResultFolder = "C:/Users/ASUS/Desktop/springboot/ft2/src/main/resources/results"; //Введите путь до папки result
+    private String pathToResultFolder = "src/main/resources/results";
+    //"C:/Users/ASUS/Desktop/springboot/ft2/src/main/resources/results"; //Введите путь до папки result
 
     private int counter = new File(pathToResultFolder).listFiles().length;
 

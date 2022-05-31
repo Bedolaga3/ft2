@@ -223,8 +223,8 @@ public class imageGenerator {
         result.getGraphics().drawImage(GenerateBackground(), 0, 0, null);
         result.getGraphics().drawImage(skin, 0, 0, null);
         result.getGraphics().drawImage(clothes, 0, 0, null);
-        result.getGraphics().drawImage(eyes, 0, 0, null);
         result.getGraphics().drawImage(hair,0, 0, null);
+        result.getGraphics().drawImage(eyes, 0, 0, null);
         result.getGraphics().drawImage(hat, 0, 0, null);
 
         String outputPath = String.format("src/main/resources/results/%d.png", amount++);
