@@ -2,6 +2,8 @@ package com.itproger.blog.controllers;
 
 
 import com.itproger.blog.exceptions.NotFoundException;
+import com.itproger.blog.generator.imageGenerator;
+
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -64,9 +66,14 @@ public class imageController {
     }
 
     @PostMapping
-    public Map<String, String> create(@RequestBody Map<String, String> image) {
+    public Map<String, String> create(@RequestBody Map<String, String> image) throws IOException {
         image.put("id", String.valueOf(counter));
         image.put("url", "/images/showme/"+ String.valueOf(counter++));
+
+        /////////////////////////
+        counter = imageGenerator.Generate();
+        /////////////////////////
+
         Collections.reverse(images);
         images.add(image);
         Collections.reverse(images);
