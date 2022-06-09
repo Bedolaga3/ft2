@@ -1,19 +1,25 @@
+import Vue from 'vue'
+import VueResource from 'vue-resource'
+import App from 'pages/App.vue'
+import Vuetify from 'vuetify'
+import 'vuetify/dist/vuetify.min.css'
+
+
+Vue.use(VueResource)
+Vue.use(Vuetify)
+
+new Vue({
+    el: '#app',
+    render: a => a(App)
+
+})
+
+/*
 var imageApi = Vue.resource('/images{/id}');
 
 
 Vue.component('generateForm', {
     props: ['images'],
-    /*data: function() {
-        return {
-
-        }
-    }*/
-
-    template:
-     '<div>' +
-        '<h3>Генератор изображений</h3>' +
-        '<input type="button" value = "Сгенерировать" @click="generate" />' +
-    '</div>',
 
     methods: {
         generate: function() {
@@ -28,37 +34,16 @@ Vue.component('generateForm', {
 });
 
 Vue.component('image-row', {
-props: ['image'],
-template: '<div><i>{{image.id}}</i><img :src="image.url" /></div>'
+props: ,
+template:
 
 
 });
 
 Vue.component('GalleryList', {
-    props: ['images'],
+
     template:
-    '<div>' +
-        '<generateForm :images="images" />' +
-        '<h3>Галлерея</h3>' +
-        '<image-row v-for="image in images" :key="image.id" :image="image" />' +
-    '</div>',
-  created: function() {
-    imageApi.get().then(result =>
-        result.json().then(data =>
-            data.forEach(image => this.images.push(image))
 
-        )
-    )
-  }
 });
 
-
-var app = new Vue({
-  el: '#app',
-  template: '<GalleryList :images="images" />',
-  data: {
-    images: [
-
-    ]
-  }
-});
+*/

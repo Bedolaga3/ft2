@@ -1,59 +1,63 @@
 package com.itproger.blog.controllers;
 
 
-import com.itproger.blog.exceptions.NotFoundException;
-import com.itproger.blog.generator.imageGenerator;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.itproger.blog.domain.Image;
 import com.itproger.blog.FileChecker;
 
+import com.itproger.blog.domain.Views;
+import com.itproger.blog.generator.imageGenerator;
+import com.itproger.blog.repo.ImageRepo;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.activation.FileTypeMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
 @RequestMapping("images")
 public class imageController {
     private String pathToResultFolder = "src/main/resources/results";
-    //"C:/Users/ASUS/Desktop/springboot/ft2/src/main/resources/results"; //Введите путь до папки result
     File resultsDir = FileChecker.DirCreator(pathToResultFolder);
-    //File resultsDir = new File(pathToResultFolder);
+
+    private final ImageRepo imageRepo;
+
+    @Autowired
+    public imageController(ImageRepo imageRepo) {
+        this.imageRepo = imageRepo;
+    }
+
+    public Long getImageCount() {
+        return imageRepo.count();
+    }
 
 
-    private int counter = FileChecker.CheckLargestId(resultsDir)+1;
-    //private int counter = resultsDir.listFiles().length;
 
-    private List<Map<String, String>> images = new ArrayList<Map<String, String>>() {{
-
-        for(int i = counter-1; i>0; i--){
-            String StringI = Integer.toString(i);
-            add(new HashMap<String, String>() {{ put("id", StringI); put("url", "/images/showme/" + StringI);}});
-        }
-        //add(new HashMap<String, String>() {{ put("id", "1"); put("url", "https://i.pinimg.com/600x315/04/fc/74/04fc74e8816759bb4bb8e9a61bd67981.jpg");}});
-        //add(new HashMap<String, String>() {{ put("id", "2"); put("url", "/images/showme");}});
-        //add(new HashMap<String, String>() {{ put("id", "3"); put("url", "https://i.pinimg.com/600x315/04/fc/74/04fc74e8816759bb4bb8e9a61bd67981.jpg");}});
-
-    }};
+    //add(new HashMap<String, String>() {{ put("id", StringI); put("url", "/images/showme/" + StringI);}});
     @GetMapping()
-    public List<Map<String, String>> list() {
-        return images;
+    @JsonView(Views.FullImage.class)
+    public List<Image> list() {
+        return imageRepo.findAll(Sort.by(Sort.Order.desc("id")));
     }
 
     @GetMapping("{id}")
-    public Map<String, String> getOne(@PathVariable String id) {
-        return getImage(id);
+    public Image getOne(@PathVariable("id") Image image) {
+        return image;
     }
 
     @GetMapping(value = "/showme/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<Resource> image(@PathVariable String id) throws IOException {
+    public ResponseEntity<Resource> image(@PathVariable("id") String id) throws IOException {
         final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
                 pathToResultFolder + "/"+ id + ".png"
         )));
@@ -64,44 +68,32 @@ public class imageController {
 
     }
 
-    private Map<String, String> getImage(String id) {
-        return images.stream()
-                .filter(image -> image.get("id").equals(id))
-                .findFirst()
-                .orElseThrow(NotFoundException::new);
-    }
 
     @PostMapping
-    public Map<String, String> create(@RequestBody Map<String, String> image) throws IOException {
-        image.put("id", String.valueOf(counter));
-        image.put("url", "/images/showme/"+ String.valueOf(counter));
-
+    public Image create(@RequestBody Image image) throws IOException {
         /////////////////////////
-        counter = imageGenerator.Generate(counter++);
+        imageGenerator.Generate(getImageCount());
         /////////////////////////
 
-        Collections.reverse(images);
-        images.add(image);
-        Collections.reverse(images);
+        image.setUrl("url", "/images/showme/" + String.valueOf(getImageCount()+1));
+        image.setCreationDate(LocalDateTime.now());
 
-        return image;
+        return imageRepo.save(image);
+
     }
 
     @PutMapping("{id}")
-    public Map<String, String> update(@PathVariable String id, @RequestBody Map<String, String> image) {
-        Map<String, String> imageFromDb = getImage(id);
+    public Image update(
+            @PathVariable("id") Image imageFromDb,
+            @RequestBody Image image) {
+        BeanUtils.copyProperties(image, imageFromDb, "id");
 
-        imageFromDb.putAll(image);
-        imageFromDb.put("id", id);
-
-        return imageFromDb;
+        return imageRepo.save(imageFromDb);
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        Map<String, String> image = getImage(id);
-
-        images.remove(image);
+    public void delete(@PathVariable("id") Image image) {
+        imageRepo.delete(image);
     }
 
 

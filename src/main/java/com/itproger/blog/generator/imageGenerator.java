@@ -213,7 +213,7 @@ public class imageGenerator {
 
 
 
-    public static int Generate(int img_id) throws IOException {
+    public static void Generate(long img_id) throws IOException {
 
 
         InputStream inputStream = System.in;
@@ -225,7 +225,9 @@ public class imageGenerator {
         // System.out.println("Сколько изображений вы хотите сгенерировать?");
         //int amount = Integer.parseInt(bufferedReader.readLine());
         int amount = new File("src/main/resources/results").listFiles().length;
-        System.out.println("Файлов в папке:" + img_id);
+        System.out.println("Файлов в папке:" + amount);
+        System.out.println("В базе данных: " + img_id);
+        System.out.println("Генерируем id: " + ++img_id);
 
         //Открытие изображения со скином
         File fileSkin = GenerateSkin();
@@ -268,7 +270,7 @@ public class imageGenerator {
         else result.getGraphics().drawImage(masks, 0, 0, null);
         result.getGraphics().drawImage(hat, 0, 0, null);
 
-        String outputPath = String.format("src/main/resources/results/%d.png", img_id++);
+        String outputPath = String.format("src/main/resources/results/%d.png", img_id);
         File output = new File(outputPath);
         ImageIO.write(result, "png", output);
         //Записываем текст в файл
@@ -286,7 +288,7 @@ public class imageGenerator {
         System.out.println(filePath); // C/users/ASUS/Desktop/springboot/ft2
 
          */
-        return img_id;
+        //return img_id;
     }
 
 }
